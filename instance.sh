@@ -10,11 +10,11 @@ do
 
     #get private ip
     if [ "$instance" = "frontend" ]; then
-        Ip=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Instances[0].PublicIpAddress' --output text)
+        Ip=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
         
     else
         
-        Ip=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Instances[0].PrivateIpAddress' --output text)
+        Ip=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
         
     fi
 
