@@ -50,26 +50,38 @@ fi
 
 mkdir -p /app
 VALIDATE $? "Creating app directory" 
+
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOG_FILE
 VALIDATE $? "Downloading catlogue application"
+
 cd /app
 VALIDATE $? "Changing to app directory"
+
+rm -rf /app/*
+VALIDATE $? "Removing existing code"
+
 unzip /tmp/catalogue.zip &>>$LOG_FILE
 VALIDATE $? "Unzip catalogue"
+
 npm install &>>$LOG_FILE
 VALIDATE $? "Install dependencies"
+
 cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "Copy systemctl service"
+
 systemctl daemon-reload
 systemctl enable catalogue &>>$LOG_FILE
 VALIDATE $? "Enable catalogue" 
 
 cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "copy mongo repo"
+
 dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "Install MongoDB client"
+
 mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
 VALIDATE $? "Load catalogue products"
+
 systemctl start catalogue
 VALIADTE $? "Restarted catalogue"
 
