@@ -7,6 +7,7 @@ USERID=$(id -u)
  N="\e[0m"
  LOGS_FOLDER="/var/log/shell-roboshop"
  SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
+ SCRIPT_DIR=$PWD
  MONGODB_HOST=mongodb.daws85s.store
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
@@ -44,36 +45,26 @@ VALIDATE $? "Creating system user"
 
 mkdir /app
 VALIDATE $? "Creating app directory" 
-
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOG_FILE
 VALIDATE $? "Downloading catlogue application"
-
 cd /app
 VALIDATE $? "Changing to app directory"
-
 unzip /tmp/catalogue.zip &>>$LOG_FILE
 VALIDATE $? "Unzip catalogue"
-
 npm install &>>$LOG_FILE
 VALIDATE $? "Install dependencies"
-
-cp catalogue.service /etc/systemd/system/catalogue.service
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "Copy systemctl service"
-
 systemctl daemon-reload
-
 systemctl enable catalogue &>>$LOG_FILE
 VALIDATE $? "Enable catalogue" 
 
 cp mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "copy mongo repo"
-
 dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "Install MongoDB client"
-
 mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
 VALIDATE $? "Load catalogue products"
-
 systemctl start catalogue
 VALIADTE $? "Restarted catalogue"
 
