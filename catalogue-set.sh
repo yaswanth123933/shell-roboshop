@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -euo pipefail
+
+trap 'echo "There is an errror in $LINEND, command is: $BASH_COMMAND"' ERR
+
 USERID=$(id -u)
  R="\e[31m"
  G="\e[32m"
@@ -32,12 +36,9 @@ VALIDATE(){ #functions receive inputs through argus just like script argus
 }
 
 dnf module disable nodejs -y &>>$LOG_FILE
-VALIDATE $? "Disabling NodeJS"
 
 dnf module enable nodejs:20 -y &>>$LOG_FILE
-VALIDATE $? "Enbling NodeJS 20"
 
-dnf install nodejs -y &>>$LOG_FILE
 VALIDATE $? "Installing NodeJS"
 
 id roboshop &>>$LOG_FILE
@@ -48,47 +49,34 @@ else
     echo -e "User already exist ... $Y SKIPPING $N"
 fi
 
-mkdir -p /app
-VALIDATE $? "Creating app directory" 
+mkdir -p /app 
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOG_FILE
-VALIDATE $? "Downloading catlogue application"
 
 cd /app
-VALIDATE $? "Changing to app directory"
 
 rm -rf /app/*
-VALIDATE $? "Removing existing code"
 
 unzip /tmp/catalogue.zip &>>$LOG_FILE
-VALIDATE $? "Unzip catalogue"
 
 npm install &>>$LOG_FILE
-VALIDATE $? "Install dependencies"
+
 
 cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
-VALIDATE $? "Copy systemctl service"
 
 systemctl daemon-reload
 systemctl enable catalogue &>>$LOG_FILE
-VALIDATE $? "Enable catalogue" 
 
 cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "copy mongo repo"
 
-dnf install mongodb-mongosh -y &>>$LOG_FILE
-VALIDATE $? "Install MongoDB client"
+dnf install mongodb-mongosh ffff-y &>>$LOG_FILE
 
 INDEX=$(mongosh mongodb.daws85s.store --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
 if [ $INDEX -le 0 ]; then
     mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
-    VALIDATE $? "Load catalogue products"
+
 else
     echo "Catalogue products already loaded ... $Y SKIPPING $N"
 fi
 
 systemctl start catalogue
-VALIDATE $? "Restarted catalogue"
-
-
-
