@@ -40,7 +40,7 @@ for instance in $@; do
   {
     "Comment": "Updating record set"
     ,"Changes": [{
-      "Action"              : "CREATE"
+      "Action"              : "UPSERT"
       ,"ResourceRecordSet"  : {
         "Name"              : "'$RECORD_NAME'"
         ,"Type"             : "A"
