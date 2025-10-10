@@ -19,7 +19,7 @@ for instance in $@; do
   aws ec2 wait instance-running --instance-ids $INSTANCE_ID
 
   #  Get IP based on instance name
-  if [ "$instance" = "frontend" ]; then
+  if [ "$instance" != "frontend" ]; then
     IP=$(aws ec2 describe-instances \
       --instance-ids $INSTANCE_ID \
       --query 'Reservations[0].Instances[0].PublicIpAddress' \
