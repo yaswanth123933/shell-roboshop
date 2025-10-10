@@ -33,7 +33,7 @@ VALIDATE(){ #functions receive inputs through argus just like script argus
 }
 
 
-dnf install maven -y
+dnf install maven -y &>>$LOG_FILE
 
 id roboshop &>>$LOG_FILE
 if [ $? -ne 0 ]; then
